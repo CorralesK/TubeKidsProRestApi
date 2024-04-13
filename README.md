@@ -25,6 +25,7 @@ The TubeKidsBackend is a REST API service that provides functions to manage user
 #### Users and Session
 - **POST /users**: Register a new user.
 - **POST /session**: Log in with existing credentials.
+- **GET /users/pin**: Get the PIN of the current user.
 
 #### Playlists
 - **POST /playlists**: Add a new playlist to an user.
