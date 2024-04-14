@@ -3,6 +3,8 @@ const User = require("../models/userModel");
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
+const sendSMS = require('../helpers/smsHelper.js');
+
 /**
  * Function for encrypting a password using SHA-256
  * 
@@ -89,9 +91,11 @@ const userGet = async (req, res) => {
             }
 
             const token = createToken(user);
+            const authCode = sendSMS(user.phoneNumber);
 
             res.header({ 'location': `/api/users/?id=${user.id}` });
-            res.status(201).json(token);
+            res.status(201).json({token: token, authCode: authCode});
+            
     } catch (error) {
         console.error('Error while querying users:', error);
         return res.status(500).json({ error: 'Internal server error' });
