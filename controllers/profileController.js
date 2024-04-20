@@ -1,4 +1,5 @@
 const Profile = require("../models/profileModel.js");
+const path = require('path');
 
 /**
  * Method to create a profile
@@ -115,10 +116,29 @@ const pinGet = async (req, res) => {
     }
 }
 
+/**
+ * Get the json of the avatar
+ *
+ * @param {*} req
+ * @param {*} res
+ */
+const avatarGet = async (req, res) => {
+    try {
+        const filePath = path.join(__dirname, '../models/data/avatar.json');
+
+        const avatarData = require(filePath);
+
+        return res.status(200).json(avatarData);
+    } catch (error) {
+        console.error('Error while getting avatar JSON:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
 
 module.exports = {
     profilePost,
     profilePatch,
     profileDelete,
-    pinGet
+    pinGet,
+    avatarGet
 }

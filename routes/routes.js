@@ -50,7 +50,8 @@ const {
     profilePost,
     profilePatch,
     profileDelete,
-    pinGet
+    pinGet,
+    avatarGet
 } = require("../controllers/profileController.js");
 
 
@@ -112,3 +113,8 @@ router.patch("/profiles",
 router.delete("/profiles", verifyToken, profileDelete);
 
 router.get("/profiles/pin", verifyToken, pinGet);
+
+/**
+ * avatars
+ */
+router.get("/profiles/avatar", verifyToken, avatarGet);
