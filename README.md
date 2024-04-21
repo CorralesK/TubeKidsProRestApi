@@ -10,8 +10,11 @@ The TubeKidsBackend is a REST API service that provides functions to manage user
 
 - cors: ^2.8.5
 - dotenv: ^16.4.5
+- express: ^4.19.2
 - jsonwebtoken: ^9.0.2
 - mongoose: ^8.2.0
+- nodemailer: ^6.9.13
+- twilio: ^5.0.3
 
 ## Installation and Usage
 
@@ -26,6 +29,7 @@ The TubeKidsBackend is a REST API service that provides functions to manage user
 - **POST /users**: Register a new user.
 - **POST /session**: Log in with existing credentials.
 - **GET /users/pin**: Get the PIN of the current user.
+- **PATCH /users/status**: Update the status of the current user.
 
 #### Playlists
 - **POST /playlists**: Add a new playlist to an user.
@@ -42,6 +46,9 @@ The TubeKidsBackend is a REST API service that provides functions to manage user
 - **PATCH /profiles**: Update details of a profile.
 - **DELETE /profiles**: Delete a profile.
 - **GET /profiles/pin**: Get the PIN of the current profile.
+
+#### Avatars
+- **GET /profiles/avatar**: Retrieve the list of all avatars.
 
 ## License
 

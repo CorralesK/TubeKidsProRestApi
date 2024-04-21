@@ -1,47 +1,12 @@
-require('dotenv').config();
 const User = require("../models/userModel");
-const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
 
+const { encryptPassword, createToken } = require('../helpers/authHelper.js');
+
+const sendEmail = require('../helpers/emailHelper.js');
 const sendSMS = require('../helpers/smsHelper.js');
 
-/**
- * Function for encrypting a password using SHA-256
- * 
- * @param {string} password  - The plain text password to be encrypted.
- */
-const encryptPassword = (password) => {
-    return crypto.createHash('sha256').update(password).digest('hex');
-}
 
-/**
- * Function to create a JWT token containing only essential user information.
- * 
- * @param {Object} user - User object containing relevant data.
- * @returns {string} - A JSON Web Token.
- */
-function createToken(user) {
-    const secretKey = process.env.SECRET_KEY;
-  
-    const tokenData = {
-      id: user._id,
-      email: user.email,
-      password: user.password,
-      pin: user.pin
-    };
-  
-    const token = jwt.sign(tokenData, secretKey, { expiresIn: '12h' });
-    return token;
-  }
-  
-
-/**
- * Create a new user (main account) in the database.
- * 
- * @param {*} req
- * @param {*} res
- */
-const userPost = async (req, res) => {
+const register = async (req, res) => {
     try {
         const user = new User({
             email: req.body.email,
@@ -57,6 +22,7 @@ const userPost = async (req, res) => {
 
         const data = await user.save();
 
+        sendEmail(data);
         const token = createToken(data);
 
         res.header({ 'location': `/api/users/?id=${data.id}` });
@@ -67,47 +33,62 @@ const userPost = async (req, res) => {
     }
 }
 
-/**
- * Method to verify user's credentials.
- * Get a user (main account) if the email and password match with any on the DB.
- *
- * @param {*} req
- * @param {*} res
- */
-const userGet = async (req, res) => {
+
+const login = async (req, res) => {
     try {
-        if (!req.body.email && req.body.password)  {
+        if (!req.body.email && req.body.password) {
             return res.status(400).json({ error: 'Invalid request: email and password required' });
         }
-            const user = await User.findOne({ email: req.body.email });
-            if (!user) {
-                return res.status(404).json({ error: 'User does not exist' });
-            }
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(404).json({ error: 'User does not exist' });
+        }
 
-            const hashedPassword = encryptPassword(req.body.password);
+        if (user.status === 'pendiente') {
+            return res.status(401).json({ error: 'User not verified' });
+        }
 
-            if (user.password !== hashedPassword) {
-                return res.status(401).json({ error: 'Incorrect password' });
-            }
+        const hashedPassword = encryptPassword(req.body.password);
 
-            const token = createToken(user);
-            const authCode = sendSMS(user.phoneNumber);
+        if (user.password !== hashedPassword) {
+            return res.status(401).json({ error: 'Incorrect password' });
+        }
 
-            res.header({ 'location': `/api/users/?id=${user.id}` });
-            res.status(201).json({token: token, authCode: authCode});
-            
+        const token = createToken(user);
+        const authCode = sendSMS(user.phoneNumber);
+
+        res.header({ 'location': `/api/users/?id=${user.id}` });
+        res.status(201).json({ token: token, authCode: authCode });
+
     } catch (error) {
         console.error('Error while querying users:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
 
-/**
- * Get a user (main account) pin 
- *
- * @param {*} req
- * @param {*} res
- */
+const updateStatus = async (req, res) => {
+    try {
+        if (!req.body.id) {
+            return res.status(400).json({ error: 'Invalid request: id is required' });
+        }
+        const user = await User.findById(req.body.id);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.status = 'activo';
+        await user.save();
+
+        res.status(201).json(user);
+
+    } catch (error) {
+        console.error('Error while updating user status:', error);
+        return res.status(500).json({ error: 'Error while updating user status' });
+    }
+}
+
+
 const userPinGet = async (req, res) => {
     try {
         if (req.userId) {
@@ -132,7 +113,8 @@ const userPinGet = async (req, res) => {
 }
 
 module.exports = {
-    userPost,
-    userGet,
+    register,
+    login,
+    updateStatus,
     userPinGet
 }

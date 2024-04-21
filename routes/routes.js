@@ -14,14 +14,15 @@ const {
     validatePhoneNumber,
     validateSixDigitNumber,
     validateVideoUrl
-}  = require('../middleware/middlewares.js')
+} = require('../middleware/middlewares.js')
 
 /**
  * Users
  */
 const {
-    userPost,
-    userGet,
+    register,
+    login,
+    updateStatus,
     userPinGet
 } = require("../controllers/userController.js");
 
@@ -29,7 +30,7 @@ const {
  * Playlist
  */
 const {
-    playlistPost, 
+    playlistPost,
     playlistPatch,
     playlistDelete
 } = require("../controllers/playlistController.js");
@@ -54,21 +55,17 @@ const {
     avatarGet
 } = require("../controllers/profileController.js");
 
-
 /**
  * Listen to the task request
- * 
+ */
+
+
+/**
  * users
  */
-router.post("/session", userGet);
-
-router.post("/users",
-    validateEmail,
-    validateLegalAge,
-    validatePhoneNumber,
-    validateSixDigitNumber,
-    userPost
-);
+router.post("/session", login);
+router.post("/users", validateEmail, validateLegalAge, validatePhoneNumber, validateSixDigitNumber, register);
+router.patch("/users/status",  updateStatus);
 router.get("/users/pin", verifyToken, userPinGet);
 
 /**
@@ -81,37 +78,16 @@ router.delete("/playlists", verifyToken, playlistDelete);
 /**
  * videos
  */
-router.post("/videos", 
-    verifyToken,
-    validateVideoUrl,
-    videoPost
-);
-
-router.patch("/videos", 
-    verifyToken, 
-    validateVideoUrl,
-    videoPatch
-);
-
+router.post("/videos", verifyToken, validateVideoUrl, videoPost);
+router.patch("/videos", verifyToken, validateVideoUrl, videoPatch);
 router.delete("/videos", verifyToken, videoDelete);
 
 /**
  * profiles
  */
-router.post("/profiles", 
-    verifyToken, 
-    validateSixDigitNumber,
-    profilePost
-);
-
-router.patch("/profiles", 
-    verifyToken, 
-    validateSixDigitNumber,
-    profilePatch
-);
-
+router.post("/profiles", verifyToken, validateSixDigitNumber, profilePost);
+router.patch("/profiles", verifyToken, validateSixDigitNumber, profilePatch);
 router.delete("/profiles", verifyToken, profileDelete);
-
 router.get("/profiles/pin", verifyToken, pinGet);
 
 /**
