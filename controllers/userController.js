@@ -45,7 +45,7 @@ const login = async (req, res) => {
         }
 
         if (user.status === 'pendiente') {
-            return res.status(401).json({ error: 'User not verified' });
+            return res.status(403).json({ error: 'User not verified' });
         }
 
         const hashedPassword = encryptPassword(req.body.password);
