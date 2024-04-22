@@ -1,4 +1,4 @@
-# TubeKidsBackend
+# TubeKids Pro Rest Api
 
 This project is part of the Web Environment Programming II course (Code: ISW-711) of the Universidad Técnica Nacional, under the direction of Professor Bladimir Arroyo.
 
@@ -18,7 +18,7 @@ The TubeKidsBackend is a REST API service that provides functions to manage user
 
 ## Installation and Usage
 
-1. Clone this repository: `git clone https://github.com/CorralesK/TubeKidsBackend.git`.
+1. Clone this repository: `git clone https://github.com/CorralesK/TubeKidsProRestApi.git`.
 2. Install the dependencies: `npm install`.
 3. Configure environment variables as needed.
 4. Start the server: `npm start`.
